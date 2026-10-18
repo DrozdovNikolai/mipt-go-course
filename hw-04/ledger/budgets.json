@@ -1,0 +1,17 @@
+[
+    {
+        "Category": "Food",
+        "Limit": 1500,
+        "Period": "monthly"
+    },
+    {
+        "Category": "Transport",
+        "Limit": 700,
+        "Period": "monthly"
+    },
+    {
+        "Category": "Entertainment",
+        "Limit": 400,
+        "Period": "monthly"
+    }
+]
