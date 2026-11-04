@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>api: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">gateway/internal/api/http.go (0.0%)</option>
+				
+				<option value="file1">gateway/main.go (36.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package api
+
+import "ledger"
+
+type CreateTransactionRequest struct {
+        Amount      float64
+        Category    string
+        Description string
+        Date        string
+}
+
+type TransactionResponse struct {
+        ID          int
+        Amount      float64
+        Category    string
+        Description string
+        Date        string
+}
+
+type CreateBudgetRequest struct {
+        Category string
+        Limit    float64
+        Period   string
+}
+
+type BudgetResponse struct {
+        Category string
+        Limit    float64
+        Period   string
+}
+
+func TransactionToResponse(t *ledger.Transaction) TransactionResponse {
+        <span class="cov0" title="0">return TransactionResponse{
+                ID:          t.ID,
+                Amount:      t.Amount,
+                Category:    t.Category,
+                Description: t.Description,
+                Date:        t.Date,
+</span>        }
+}
+
+func TransactionFromRequest(r *CreateTransactionRequest) ledger.Transaction {
+        <span class="cov0" title="0">return ledger.Transaction{
+                Amount:      r.Amount,
+                Category:    r.Category,
+                Description: r.Description,
+                Date:        r.Date,
+</span>        }
+}
+
+func BudgetFromRequest(r *CreateBudgetRequest) ledger.Budget {
+        <span class="cov0" title="0">return ledger.Budget{
+                Category: r.Category,
+                Limit:    r.Limit,
+                Period:   r.Period,
+</span>        }
+}
+
+func BudgetToResponse(b *ledger.Budget) BudgetResponse {
+        <span class="cov0" title="0">return BudgetResponse{
+                Category: b.Category,
+                Limit:    b.Limit,
+                Period:   b.Period,
+</span>        }
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "encoding/json"
+        "fmt"
+        "gateway/internal/api"
+        "ledger"
+        "log"
+        "net/http"
+        "time"
+)
+
+func main() {
+        <span class="cov0" title="0">http.HandleFunc("/ping", pingHandler)
+</span>
+        <span class="cov0" title="0">http.HandleFunc("POST /api/transactions", createTransactionHandler)
+        http.HandleFunc("GET /api/transactions", listTransactionsHandler)
+</span>
+        <span class="cov0" title="0">http.HandleFunc("POST /api/budgets", createBudgetHandler)
+        http.HandleFunc("GET /api/budgets", listBudgetsHandler)
+</span>
+        <span class="cov0" title="0">http.HandleFunc("/", notFoundHandler)
+</span>
+        <span class="cov0" title="0">fmt.Println("Gateway service started on :8080")
+</span>
+        <span class="cov0" title="0">err := http.ListenAndServe(":8080", loggingMiddleware(http.DefaultServeMux))
+        if err != nil </span>{
+                <span class="cov0" title="0">fmt.Println("server error:", err)
+</span>        }
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+        <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        w.WriteHeader(http.StatusNotFound)
+        json.NewEncoder(w).Encode(map[string]interface{}{"error": "not found"})
+</span>}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+        <span class="cov0" title="0">return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span>{
+                <span class="cov0" title="0">timeStart := time.Now()
+</span>
+                <span class="cov0" title="0">next.ServeHTTP(w, r)
+</span>
+                <span class="cov0" title="0">log.Printf("Processed %s request for %s in %v\n", r.Method, r.URL.Path, time.Since(timeStart))
+</span>        })
+}
+
+func listTransactionsHandler(w http.ResponseWriter, r *http.Request) {
+
+        <span class="cov8" title="1">if r.Method != http.MethodGet </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusMethodNotAllowed)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "method not allowed"})
+                return
+</span>        }
+
+        <span class="cov8" title="1">transactions := ledger.ListTransactions()
+</span>
+        <span class="cov8" title="1">transactionResponses := make([]api.TransactionResponse, len(transactions))
+        for i, t := range transactions </span>{
+                <span class="cov8" title="1">transactionResponses[i] = api.TransactionToResponse(&amp;t)
+</span>        }
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        json.NewEncoder(w).Encode(transactionResponses)</span>
+}
+
+func createTransactionHandler(w http.ResponseWriter, r *http.Request) {
+
+        <span class="cov8" title="1">if r.Method != http.MethodPost </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusMethodNotAllowed)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "method not allowed"})
+                return
+</span>        }
+
+        <span class="cov8" title="1">jsonDecoder := json.NewDecoder(r.Body)
+        var req api.CreateTransactionRequest
+        err := jsonDecoder.Decode(&amp;req)
+        if err != nil </span>{
+                <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusBadRequest)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "invalid request body"})
+                return
+</span>        }
+
+        <span class="cov8" title="1">transaction := api.TransactionFromRequest(&amp;req)
+</span>
+        <span class="cov8" title="1">err = transaction.Validate()
+        if err != nil </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusBadRequest)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+                return
+</span>        }
+
+        <span class="cov8" title="1">transaction, err = ledger.AddTransaction(transaction)
+        if err != nil </span>{
+                <span class="cov8" title="1">if err == ledger.ErrBudgetExceeded </span>{
+                        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                        w.WriteHeader(http.StatusConflict)
+                        json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+                        return
+</span>                }
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusInternalServerError)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+                return</span>
+        }
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        w.WriteHeader(http.StatusCreated)
+        json.NewEncoder(w).Encode(api.TransactionToResponse(&amp;transaction))</span>
+
+}
+
+func listBudgetsHandler(w http.ResponseWriter, r *http.Request) {
+
+        <span class="cov8" title="1">if r.Method != http.MethodGet </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusMethodNotAllowed)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "method not allowed"})
+                return
+</span>        }
+
+        <span class="cov8" title="1">budgets := ledger.ListBudgets()
+        budgetResponses := make([]api.BudgetResponse, len(budgets))
+        for i, b := range budgets </span>{
+                <span class="cov8" title="1">budgetResponses[i] = api.BudgetToResponse(&amp;b)
+</span>        }
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        json.NewEncoder(w).Encode(budgetResponses)</span>
+}
+
+func createBudgetHandler(w http.ResponseWriter, r *http.Request) {
+        <span class="cov8" title="1">if r.Method != http.MethodPost </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusMethodNotAllowed)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "method not allowed"})
+                return
+</span>        }
+
+        <span class="cov8" title="1">jsonDecoder := json.NewDecoder(r.Body)
+        var req api.CreateBudgetRequest
+        err := jsonDecoder.Decode(&amp;req)
+        if err != nil </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusBadRequest)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "invalid request body"})
+                return
+</span>        }
+
+        <span class="cov8" title="1">budget := api.BudgetFromRequest(&amp;req)
+</span>
+        <span class="cov8" title="1">err = budget.Validate()
+        if err != nil </span>{
+                <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusBadRequest)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+                return
+</span>        }
+
+        <span class="cov8" title="1">if err := ledger.SetBudget(budget); err != nil </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusInternalServerError)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+                return
+</span>        }
+
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        w.WriteHeader(http.StatusCreated)
+        json.NewEncoder(w).Encode(api.BudgetToResponse(&amp;budget))</span>
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+        <span class="cov0" title="0">if r.Method != http.MethodGet </span>{
+                <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+                w.WriteHeader(http.StatusMethodNotAllowed)
+                json.NewEncoder(w).Encode(map[string]interface{}{"error": "method not allowed"})
+                return
+</span>        }
+        <span class="cov0" title="0">w.Header().Set("Content-Type", "application/json; charset=utf-8")
+        w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(map[string]interface{}{"message": "pong"})</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
