@@ -1,0 +1,6 @@
+.env
+bin/
+**/cover
+**/cover.out
+**/cover.html
+*.exe
